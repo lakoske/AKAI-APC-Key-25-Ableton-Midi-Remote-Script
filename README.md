@@ -9,7 +9,7 @@ With this custom controls you can:
 - turn metronome on/of
 - undo actions
 
-New Shortcuts for APC 25 (Edited by @lakoske):
+New Shortcuts for APC 25 (Edited by Dmitry Lozinsky): 
 Clip buttons:
 one press - 		Record Clip
 second press -		Play Clip
@@ -24,6 +24,6 @@ Shift+Rec -		Record Session
 for controls used APC 25 keys (clipStop, Select), so if you need default functions of this buttons - you willbe upset.
 personally for me this setup is very good for live sessions
 
-for install change the files folder "c:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\APC_Key_25" to files from this repository
+for install replace the files in folder "c:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\APC_Key_25" by files from this repository
 (Don't forget save your original files)
 Tested for Ableton 9 and 10
