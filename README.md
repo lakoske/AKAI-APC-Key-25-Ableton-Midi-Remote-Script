@@ -26,6 +26,7 @@ personally for me this setup is very good for live sessions
 
 for install replace the files in folder "c:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\APC_Key_25" by files from this repository
 (Don't forget save your original files)
+
 There are two versions of script:
 1. 3 rows for scenes, one row for solo and last one row for mute buttons
 2. 5 rows for scenes without mute/solo buttons as well as in the original version from Akai
