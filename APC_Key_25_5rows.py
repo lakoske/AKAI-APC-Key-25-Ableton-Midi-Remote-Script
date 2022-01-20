@@ -3,10 +3,6 @@
 # Compiled at: 2018-07-05 12:45:24
 
 # Edited by Dmitry Lozinsky / lakoske@gmail.com
-# 3 scenes in session
-# _track_modes changed by mixer component
-# 4th row - solo
-# 5th row - mute
 # All new shortcuts in readme.txt
 
 from __future__ import absolute_import, print_function, unicode_literals
@@ -29,15 +25,14 @@ from .button_combine import ButtonCombine
 from _APC.APC import APC, MANUFACTURER_ID
 from _APC.ControlElementUtils import make_button, make_knob, make_pedal_button
 from _APC.DeviceComponent import DeviceComponent
-from .leSkinDefault import make_default_skin, make_biled_skin, make_stop_button_skin, make_red_skin
+from _APC.SkinDefault import make_default_skin, make_biled_skin, make_stop_button_skin
 from .SendToggleComponent import SendToggleComponent
 from .MixerComponent import MixerComponent
 
 class APC_Key_25(APC, OptimizedControlSurface):
     u""" Script for Akai's APC_Key_25 Controller """
     SESSION_WIDTH = 8
-    SESSION_HEIGHT = 3
-    AlwaysSolo = [0,0,1,1,0,0,0,0]
+    SESSION_HEIGHT = 5
     HAS_TRANSPORT = True
 
 
@@ -55,7 +50,6 @@ class APC_Key_25(APC, OptimizedControlSurface):
         self._color_skin = make_biled_skin()
         self._default_skin = make_default_skin()
         self._stop_button_skin = make_stop_button_skin()
-        self._red_skin=make_red_skin
         with self.component_guard():
             self._create_controls()
             self._session = self._create_session()
@@ -68,8 +62,7 @@ class APC_Key_25(APC, OptimizedControlSurface):
             self.set_device_component(self._device)
             self._session.set_mixer(self._mixer)
             self._encoder_modes = self._create_encoder_modes()
-            #self._track_modes = self._create_track_button_modes() lakoske
-            self.log_message("lakoske: ", "check")
+            self._track_modes = self._create_track_button_modes()
 #lakoske
     def _create_recording(self):
         self._transport.set_overdub_button(self._session_record_button)
@@ -83,15 +76,13 @@ class APC_Key_25(APC, OptimizedControlSurface):
         make_on_off_button = partial(make_button, skin=self._default_skin)
         make_color_button = partial(make_button, skin=self._color_skin)
         make_stop_button = partial(make_button, skin=self._stop_button_skin)
-        make_solo_button = partial(make_button, skin=self._red_skin)
-
         self._shift_button = make_button(0, 98, resource_type=SharedResource, name='Shift_Button')
         self._parameter_knobs = [ make_knob(0, index + 48, name='Parameter_Knob_%d' % (index + 1)) for index in xrange(self.SESSION_WIDTH)]
         self._select_buttons = [ make_stop_button(0, 64 + index, name='Track_Select_%d' % (index + 1)) for index in xrange(self.SESSION_WIDTH)]
-
-        self._lesolobuttons=[ make_solo_button(0, 8 + index, name='Track_Solo_%d' % (index + 1)) for index in xrange(self.SESSION_WIDTH)]
-        self._lemutebuttons=[ make_stop_button(0, 0 + index, name='Track_Mute_%d' % (index + 1)) for index in xrange(self.SESSION_WIDTH)]
-
+        
+        self._lesolobuttons=[ make_stop_button(0, 0 + index, name='Track_Solo_%d' % (index + 1)) for index in xrange(self.SESSION_WIDTH)]
+        self._lemutebuttons=[ make_stop_button(0, 8 + index, name='Track_Mute_%d' % (index + 1)) for index in xrange(self.SESSION_WIDTH)]
+        
         self._up_button = self.make_shifted_button(self._select_buttons[0])
         self._down_button = self.make_shifted_button(self._select_buttons[1])
         self._left_button = self.make_shifted_button(self._select_buttons[2])
@@ -116,22 +107,15 @@ class APC_Key_25(APC, OptimizedControlSurface):
 
         self._matrix_buttons = [ [ make_color_button(0, matrix_note(track, scene)+(40-self.SESSION_WIDTH*self.SESSION_HEIGHT), name='%d_Clip_%d_Button' % (track, scene)) for track in xrange(self.SESSION_WIDTH) ] for scene in xrange(self.SESSION_HEIGHT)] #lakoske +8
         self._session_matrix = ButtonMatrixElement(name='Button_Matrix', rows=self._matrix_buttons)
-        self._scene_launch_buttons = [make_color_button(0, index+82, name='Scene_Launch_%d' % (index + 1)) for index in xrange(self.SESSION_HEIGHT)]
-
-        self._leMuteBut=make_stop_button(0, 85, name='leMuteBut')
-        self._leSelectBut=make_stop_button(0, 86, name='leSelectBut')
-
+        self._scene_launch_buttons = [make_color_button(0, index, name='Scene_Launch_%d' % (index + 1)) for index in xrange(5)] #self.SESSION_HEIGHT)]
+        #self._scene_launch_buttons[4]=DoublePressElement(self._scene_launch_buttons[4])
         self._stop_button = self.make_shifted_button(self._scene_launch_buttons[0])
         self._solo_button = self.make_shifted_button(self._scene_launch_buttons[1])
         self._arm_button = self.make_shifted_button(self._scene_launch_buttons[2])
-        self._mute_button = self.make_shifted_button(self._leMuteBut)
-
-        #self._solo_button=self._arm_button
-        #self._mute_button=self._arm_button
-
-        self._select_button = self.make_shifted_button(self._leSelectBut)
-        #self._leSelectBut=make_color_button(0, 90, name="SceneLaunch4")
-        self._leSelectBut.add_value_listener(self._undo_func, identify_sender = True)              #lakoske
+        self._mute_button = self.make_shifted_button(self._scene_launch_buttons[3])
+        self._select_button = self.make_shifted_button(self._scene_launch_buttons[4])
+        #self._scene_launch_buttons[4]=make_color_button(0, 90, name="SceneLaunch4")
+        self._scene_launch_buttons[4].add_value_listener(self._undo_func, identify_sender = True)              #lakoske
 
         self._null_button=make_button(1, 64, name='Null_Button')
         self._stop_all_button = make_button(0, 81, resource_type=SharedResource, name='Stop_All_Clips_Button')
@@ -156,20 +140,20 @@ class APC_Key_25(APC, OptimizedControlSurface):
         if  self._shift_button.is_pressed():
             if self.song().can_undo:
                 self.song().undo()
-            self._leSelectBut._is_pressed=False
-            self._leSelectBut.__is_momentary=False
-            self._leSelectBut._last_received_value=0
-            self._leSelectBut.turn_off()
+            self._scene_launch_buttons[4]._is_pressed=False
+            self._scene_launch_buttons[4].__is_momentary=False
+            self._scene_launch_buttons[4]._last_received_value=0
+            self._scene_launch_buttons[4].turn_off()
         return
 
     #__________________________________________________________
     def _press_shift (self,value):
         if  self._shift_button.is_pressed():
-            self._leSelectBut.clear_value_listeners()
-            self._leSelectBut.add_value_listener(self._undo_func, identify_sender = False)
+            self._scene_launch_buttons[4].clear_value_listeners()
+            self._scene_launch_buttons[4].add_value_listener(self._undo_func, identify_sender = False)
             self._transport.set_overdub_button(self._null_button)
         else:
-            self._leSelectBut.clear_value_listeners()
+            self._scene_launch_buttons[4].clear_value_listeners()
             self._session.set_scene_launch_buttons(self.wrap_matrix(self._scene_launch_buttons))
             self._transport.set_overdub_button(self._session_record_button)
 
@@ -224,9 +208,7 @@ class APC_Key_25(APC, OptimizedControlSurface):
         return session
 
     def _create_mixer(self):
-        solo_button_matrix = self.wrap_matrix(self._lesolobuttons)
-        mute_button_matrix = self.wrap_matrix(self._lemutebuttons)
-        return MixerComponent(self.SESSION_WIDTH, auto_name=True, is_enabled=False, invert_mute_feedback=True, layer=Layer(solo_buttons=solo_button_matrix, mute_buttons=mute_button_matrix, arm_buttons=self.wrap_matrix(self._select_buttons)))
+        return MixerComponent(self.SESSION_WIDTH, auto_name=True, is_enabled=False, invert_mute_feedback=True)
 
     def _create_device_component(self):
         return DeviceComponent(name='Device_Component', is_enabled=False, device_selection_follows_track_selection=True)
@@ -252,17 +234,17 @@ class APC_Key_25(APC, OptimizedControlSurface):
          AddLayerMode(self._mixer, Layer(send_controls=parameter_knobs_matrix)),
          send_toggle_component])
         knob_modes.add_mode('device', AddLayerMode(self._device, Layer(parameter_controls=parameter_knobs_matrix)))
-        knob_modes.selected_mode = 'device'
+        knob_modes.selected_mode = 'volume'
         knob_modes.layer = Layer(volume_button=self._volume_button, pan_button=self._pan_button, send_button=self._send_button, device_button=self._device_button)
         return knob_modes
 
     def _create_track_button_modes(self):
         track_button_modes = ModesComponent(name='Track Button Modes', is_enabled=False)
         select_button_matrix = self.wrap_matrix(self._select_buttons)
-
+        
         solo_button_matrix = self.wrap_matrix(self._lesolobuttons)
         mute_button_matrix = self.wrap_matrix(self._lemutebuttons)
-
+        
         track_button_modes.add_mode('clip_stop', AddLayerMode(self._session, Layer(stop_track_clip_buttons=select_button_matrix)))
         track_button_modes.add_mode('solo', AddLayerMode(self._mixer, layer=Layer(solo_buttons=solo_button_matrix)))
         track_button_modes.add_mode('arm', AddLayerMode(self._mixer, layer=Layer(arm_buttons=select_button_matrix)))
@@ -280,7 +262,7 @@ class APC_Key_25(APC, OptimizedControlSurface):
             if self.HAS_TRANSPORT:
                 self._transport.set_enabled(enable)
             self._encoder_modes.set_enabled(enable)
-            #self._track_modes.set_enabled(enable)	lakoske
+            self._track_modes.set_enabled(enable)
 
     def _should_combine(self):
         return False
