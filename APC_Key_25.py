@@ -2,6 +2,7 @@
 # Embedded file name: c:\Jenkins\live\output\win_64_static\Release\python-bundle\MIDI Remote Scripts\APC_Key_25\APC_Key_25.py
 # Compiled at: 2018-07-05 12:45:24
 
+#for Ableton 11
 # Edited by Dmitry Lozinsky / lakoske@gmail.com
 # 3 scenes in session
 # _track_modes changed by mixer component
@@ -46,7 +47,7 @@ class APC_Key_25(APC, OptimizedControlSurface):
 
     @classmethod
     def wrap_matrix(cls, control_list, wrapper=nop):
-        return ButtonMatrixElement(rows=[map(wrapper, control_list)])
+        return ButtonMatrixElement(rows=[list(map(wrapper, control_list))])
 
     def __init__(self, *a, **k):
         super(APC_Key_25, self).__init__(*a, **k)
@@ -86,11 +87,12 @@ class APC_Key_25(APC, OptimizedControlSurface):
         make_solo_button = partial(make_button, skin=self._red_skin)
 
         self._shift_button = make_button(0, 98, resource_type=SharedResource, name='Shift_Button')
-        self._parameter_knobs = [ make_knob(0, index + 48, name='Parameter_Knob_%d' % (index + 1)) for index in xrange(self.SESSION_WIDTH)]
-        self._select_buttons = [ make_stop_button(0, 64 + index, name='Track_Select_%d' % (index + 1)) for index in xrange(self.SESSION_WIDTH)]
+        self._parameter_knobs = [make_knob(0, (index + 48), name=('Parameter_Knob_%d' % (index + 1))) for index in range(self.SESSION_WIDTH)]
+        self._select_buttons = [make_stop_button(0, (64 + index), name=('Track_Select_%d' % (index + 1))) for index in range(self.SESSION_WIDTH)]
+        
 
-        self._lesolobuttons=[ make_solo_button(0, 8 + index, name='Track_Solo_%d' % (index + 1)) for index in xrange(self.SESSION_WIDTH)]
-        self._lemutebuttons=[ make_stop_button(0, 0 + index, name='Track_Mute_%d' % (index + 1)) for index in xrange(self.SESSION_WIDTH)]
+        self._lesolobuttons=[ make_solo_button(0, 8 + index, name='Track_Solo_%d' % (index + 1)) for index in range(self.SESSION_WIDTH)]
+        self._lemutebuttons=[ make_stop_button(0, 0 + index, name='Track_Mute_%d' % (index + 1)) for index in range(self.SESSION_WIDTH)]
 
         self._up_button = self.make_shifted_button(self._select_buttons[0])
         self._down_button = self.make_shifted_button(self._select_buttons[1])
@@ -114,9 +116,9 @@ class APC_Key_25(APC, OptimizedControlSurface):
         def matrix_note(x, y):
             return x + self.SESSION_WIDTH * (self.SESSION_HEIGHT - y - 1)
 
-        self._matrix_buttons = [ [ make_color_button(0, matrix_note(track, scene)+(40-self.SESSION_WIDTH*self.SESSION_HEIGHT), name='%d_Clip_%d_Button' % (track, scene)) for track in xrange(self.SESSION_WIDTH) ] for scene in xrange(self.SESSION_HEIGHT)] #lakoske +8
+        self._matrix_buttons = [ [ make_color_button(0, matrix_note(track, scene)+(40-self.SESSION_WIDTH*self.SESSION_HEIGHT), name='%d_Clip_%d_Button' % (track, scene)) for track in range(self.SESSION_WIDTH) ] for scene in range(self.SESSION_HEIGHT)] #lakoske +8
         self._session_matrix = ButtonMatrixElement(name='Button_Matrix', rows=self._matrix_buttons)
-        self._scene_launch_buttons = [make_color_button(0, index+82, name='Scene_Launch_%d' % (index + 1)) for index in xrange(self.SESSION_HEIGHT)]
+        self._scene_launch_buttons = [make_color_button(0, index+82, name='Scene_Launch_%d' % (index + 1)) for index in range(self.SESSION_HEIGHT)]
 
         self._leMuteBut=make_stop_button(0, 85, name='leMuteBut')
         self._leSelectBut=make_stop_button(0, 86, name='leSelectBut')
@@ -183,14 +185,14 @@ class APC_Key_25(APC, OptimizedControlSurface):
     def make_del_but(self,value):
         if self._shift_button.is_pressed() and self._stop_all_button.is_pressed():
             self._session.set_stop_all_clips_button(self._null_button)
-            for scene_index in xrange(self.SESSION_HEIGHT):
-                for track_index in xrange(self.SESSION_WIDTH):
+            for scene_index in range(self.SESSION_HEIGHT):
+                for track_index in range(self.SESSION_WIDTH):
                     slot = self._session.scene(scene_index).clip_slot(track_index)
                     slot.set_select_button(self._null_button)
                     slot.set_delete_button(self._stop_all_button)
         else:
-            for scene_index in xrange(self.SESSION_HEIGHT):
-                for track_index in xrange(self.SESSION_WIDTH):
+            for scene_index in range(self.SESSION_HEIGHT):
+                for track_index in range(self.SESSION_WIDTH):
                     slot = self._session.scene(scene_index).clip_slot(track_index)
                     slot.set_select_button(self._shift_button)
                     slot.set_delete_button(self._null_button)
@@ -211,12 +213,21 @@ class APC_Key_25(APC, OptimizedControlSurface):
         return make_button(0, 81, name='Stop_All_Clips_Button')
 
     def _create_session(self):
-        session = leSessionComponent(self.SESSION_WIDTH, self.SESSION_HEIGHT, auto_name=True, enable_skinning=True, is_enabled=False, layer=Layer(scene_launch_buttons=self.wrap_matrix(self._scene_launch_buttons), clip_launch_buttons=self._session_matrix,  track_bank_left_button=self._left_button, track_bank_right_button=self._right_button, scene_bank_up_button=self._up_button, scene_bank_down_button=self._down_button)) #stop_all_clips_button=self._stop_all_button,, record_button=self._record_button ))
-
+        session = leSessionComponent((self.SESSION_WIDTH),
+            (self.SESSION_HEIGHT),
+            auto_name=True,
+            enable_skinning=True,
+            is_enabled=False, 
+            layer=Layer(scene_launch_buttons=(self.wrap_matrix(self._scene_launch_buttons)), 
+            clip_launch_buttons=(self._session_matrix),  
+            track_bank_left_button=(self._left_button),
+            track_bank_right_button=(self._right_button),
+            scene_bank_up_button=(self._up_button),
+            scene_bank_down_button=(self._down_button)))
         #session.set_stop_track_clip_buttons(self._session_matrix)
         #self.session.set_stop_clip_value()
-        for scene_index in xrange(self.SESSION_HEIGHT):
-            for track_index in xrange(self.SESSION_WIDTH):
+        for scene_index in range(self.SESSION_HEIGHT):
+            for track_index in range(self.SESSION_WIDTH):
                 slot = session.scene(scene_index).clip_slot(track_index)
                 slot.layer = Layer( select_button=self._shift_button)#, delete_button=self._clip_delete_button) #select_button=self._shift_button,
         session.set_stop_all_clips_button(self._stop_all_button)
