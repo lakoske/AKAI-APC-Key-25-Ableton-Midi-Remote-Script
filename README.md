@@ -30,7 +30,7 @@ for Ableton 11 target path is c:\ProgramData\Ableton\Live 11 Suite\Resources\MID
 (Don't forget save your original files)
 
 There are two versions of script:
-1. 3 rows for scenes, one row for solo and last one row for mute buttons
+1. 3 rows for scenes, one row for solo and last one for mute buttons
 2. 5 rows for scenes without mute/solo buttons as well as in the original version from Akai
 By default, the first version will work. If you need the second (5 scenes) - rename the file APC_Key_25.py from repository to new name like APC_Key_25_3row.py and then rename APC_Key_25_5rows.py to APC_Key_25.py
 
