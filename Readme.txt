@@ -1,4 +1,4 @@
-New Shortcuts for APC 25 (Edited by Dmitry Lozinsky lakoske@gmail.com)
+New Shortcuts for APC 25 (lakoske@gmail.com)
 ver 1.1
 
 Clip buttons:
