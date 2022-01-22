@@ -34,7 +34,8 @@ There are two versions of script:
 2. 5 rows for scenes without mute/solo buttons as well as in the original version from Akai
 By default, the first version will work. If you need the second (5 scenes) - rename the file APC_Key_25.py from repository to new name like APC_Key_25_3row.py and then rename APC_Key_25_5rows.py to APC_Key_25.py
 
-Tested for Ableton 9 and 10
+Tested for Ableton 9 and 10.
+
 Version for Ableton 11 is available. Look at the release for Ableton 11 in this page
 
 
