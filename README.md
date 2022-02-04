@@ -36,6 +36,6 @@ By default, the first version will work. If you need the second (5 scenes) - ren
 
 Tested for Ableton 9 and 10.
 
-Version for Ableton 11 is available. Look at the release for Ableton 11 in this page
+Version for Ableton 11 is available. 
 
 
